@@ -4,6 +4,15 @@ parameters:
     #parameter_name: value
 
 services:
-    #service_name:
-    #    class: AppBundle\Directory\ClassName
-    #    arguments: ['@another_service_name', 'plain_value', '%parameter_name%']
+    stylus:
+        class: AppBundle\Service\StylusService
+        autowire: true
+
+    product_container:
+        class: AppBundle\Service\ParserContainer
+        autowire: true
+
+    product_params:
+        class: AppBundle\Config\PagesParams
+
+
