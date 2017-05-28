@@ -4,15 +4,34 @@ parameters:
     #parameter_name: value
 
 services:
+    repository.product:
+        class: Doctrine\ORM\EntityRepository
+        factory: ["@doctrine.orm.entity_manager", getRepository]
+        arguments:
+                - AppBundle\Entity\Product
+
+    repository.configuration:
+            class: Doctrine\ORM\EntityRepository
+            factory: ["@doctrine.orm.entity_manager", getRepository]
+            arguments:
+                - AppBundle\Entity\ProductConfiguration
+
+    repository.category:
+            class: Doctrine\ORM\EntityRepository
+            factory: ["@doctrine.orm.entity_manager", getRepository]
+            arguments:
+                - AppBundle\Entity\Category
+
     stylus:
         class: AppBundle\Service\StylusService
+        arguments: ['@parser.manager', '@repository.configuration', '@repository.product', '@repository.category']
+
+    parser.manager:
+        class: AppBundle\Service\ParserManager
         autowire: true
 
-    product_container:
-        class: AppBundle\Service\ParserContainer
-        autowire: true
-
-    product_params:
-        class: AppBundle\Config\PagesParams
+    perser.config:
+        class: AppBundle\Config\PagesConfig
+        arguments: [%kernel.root_dir%/config/parser_parameters.yml]
 
 

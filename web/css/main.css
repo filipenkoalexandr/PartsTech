@@ -1,0 +1,29 @@
+#product-page ul.pagination {
+    display: flex;
+    justify-content: center;
+}
+
+#product-page ul.pagination .active {
+    background: rgba(0, 0, 0, 0.12)
+}
+
+ul#product-list {
+    list-style-type: none;
+}
+
+#product-filters .filter-group-title {
+    font-weight: bold;
+    font-size: 17px;
+}
+
+#product-filters .filter-item {
+
+}
+
+#product-filters .filter-group-item {
+    margin: 0 0 17px;
+}
+
+#product-list .item {
+    margin: 0 0 25px;
+}

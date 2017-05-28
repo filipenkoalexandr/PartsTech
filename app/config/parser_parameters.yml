@@ -1,0 +1,9 @@
+pages:
+    headset:
+            class: AppBundle\Service\Pages\HeadSetPage
+            url: naushniki-i-garnitury
+            configurations:
+                construcion: Тип конструкции
+                device: Тип устройства
+                clamp: Тип крепления
+

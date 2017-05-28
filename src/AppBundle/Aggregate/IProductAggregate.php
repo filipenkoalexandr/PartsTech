@@ -3,16 +3,18 @@
 
 namespace AppBundle\Aggregate;
 
+use AppBundle\Entity\Product;
+use AppBundle\Entity\ProductConfiguration;
+
 interface IProductAggregate
 {
     /**
-     * @return array
+     * @return ProductConfiguration[]
      */
-    public function getTypes();
+    public function getConfiguration();
 
     /**
-     * @param array $entityTypes
-     * @return object
+     * @return Product
      */
-    public function getProduct(array $entityTypes);
+    public function getProduct();
 }

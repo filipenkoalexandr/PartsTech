@@ -1,5 +1,0 @@
-pages:
-    headset:
-          class: AppBundle\Service\Pages\HeadSetPage
-          url: naushniki-i-garnitury
-

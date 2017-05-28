@@ -2,6 +2,7 @@
 
 namespace AppBundle\Entity;
 
+use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
@@ -24,45 +25,38 @@ class Product
     /**
      * @var string
      *
+     * @ORM\Column(name="image", type="string", length=255)
+     */
+    private $image;
+
+    /**
+     * @var int
+     *
+     * @ORM\Column(name="price", nullable=true, type="integer")
+     */
+    private $price;
+
+    /**
+     * @var ArrayCollection
+     *
+     * @ORM\OneToMany(targetEntity="ProductConfiguration", mappedBy="product")
+     */
+    protected $configurations;
+
+    /**
+     * @var string
+     *
      * @ORM\Column(name="title", type="string", length=255)
      */
     private $title;
 
     /**
-     * @var string
-     *
-     * @ORM\Column(name="photo", type="string", length=255)
-     */
-    private $photo;
-
-    /**
      * @var int
      *
-     * @ORM\Column(name="price", type="integer")
+     * @ORM\Column(name="category_id", type="integer")
+     * @ORM\ManyToOne(targetEntity="Category")
      */
-    private $price;
-
-    /**
-     * @var ConstructionType
-     * @ORM\ManyToOne(targetEntity="ConstructionType")
-     * @ORM\JoinColumn(name="type_construction", referencedColumnName="id")
-     */
-    private $typeConstruction;
-
-    /**
-     * @var DeviceType
-     * @ORM\ManyToOne(targetEntity="DeviceType")
-     * @ORM\JoinColumn(name="type_device", referencedColumnName="id")
-     */
-    private $typeDevice;
-
-    /**
-     * @var ClampType
-     * @ORM\ManyToOne(targetEntity="ClampType")
-     * @ORM\JoinColumn(name="type_clamp", referencedColumnName="id")
-     */
-    private $typeClamp;
-
+    private $categoryId;
 
     /**
      * Get id
@@ -75,51 +69,27 @@ class Product
     }
 
     /**
-     * Set title
+     * Set image
      *
-     * @param string $title
+     * @param string $image
      *
      * @return Product
      */
-    public function setTitle($title)
+    public function setImage($image)
     {
-        $this->title = $title;
+        $this->image = $image;
 
         return $this;
     }
 
     /**
-     * Get title
+     * Get image
      *
      * @return string
      */
-    public function getTitle()
+    public function getImage()
     {
-        return $this->title;
-    }
-
-    /**
-     * Set photo
-     *
-     * @param string $photo
-     *
-     * @return Product
-     */
-    public function setPhoto($photo)
-    {
-        $this->photo = $photo;
-
-        return $this;
-    }
-
-    /**
-     * Get photo
-     *
-     * @return string
-     */
-    public function getPhoto()
-    {
-        return $this->photo;
+        return $this->image;
     }
 
     /**
@@ -147,75 +117,59 @@ class Product
     }
 
     /**
-     * Set typeConstruction
+     * Set title
      *
-     * @param ConstructionType $typeConstruction
+     * @param string $title
      *
      * @return Product
      */
-    public function setTypeConstruction(ConstructionType $typeConstruction)
+    public function setTitle($title)
     {
-        $this->typeConstruction = $typeConstruction;
+        $this->title = $title;
 
         return $this;
     }
 
     /**
-     * Get typeConstruction
+     * Get title
      *
-     * @return ConstructionType
+     * @return string
      */
-    public function getTypeConstruction()
+    public function getTitle()
     {
-        return $this->typeConstruction;
+        return $this->title;
     }
 
     /**
-     * Set typeDevice
-     *
-     * @param DeviceType $typeDevice
-     *
-     * @return Product
+     * @return int
      */
-    public function setTypeDevice(DeviceType $typeDevice)
+    public function getCategoryId()
     {
-        $this->typeDevice = $typeDevice;
-
-        return $this;
+        return $this->categoryId;
     }
 
     /**
-     * Get typeDevice
-     *
-     * @return DeviceType
+     * @param int $categoryId
      */
-    public function getTypeDevice()
+    public function setCategoryId($categoryId)
     {
-        return $this->typeDevice;
+        $this->categoryId = $categoryId;
     }
 
     /**
-     * Set typeClamp
-     *
-     * @param ClampType $typeClamp
-     *
-     * @return Product
+     * @param ProductConfiguration $config
      */
-    public function setTypeClamp(ClampType $typeClamp)
+    public function setConfigurations($config)
     {
-        $this->typeClamp = $typeClamp;
-
-        return $this;
+        $this->configurations = $config;
     }
 
     /**
-     * Get typeClamp
-     *
-     * @return ClampType
+     * @return ProductConfiguration[]
      */
-    public function getTypeClamp()
+    public function getConfigurations()
     {
-        return $this->typeClamp;
+        return $this->configurations->toArray();
     }
 }
 

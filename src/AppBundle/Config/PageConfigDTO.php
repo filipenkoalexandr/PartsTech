@@ -4,23 +4,37 @@
 namespace AppBundle\Config;
 
 
-class ParamsDTO
+class PageConfigDTO
 {
+    /**
+     * @var string
+     */
     protected $className;
 
+    /**
+     * @var string
+     */
     protected $url;
 
-    private function __construct($className, $url)
+    /**
+     * @var array
+     */
+    protected $configurations;
+
+    private function __construct($className, $url, $configurations)
     {
         $this->className = $className;
         $this->url = $url;
+        $this->configurations = $configurations;
+
     }
 
     public static function fromArray($data)
     {
         return new self(
             $data['class'],
-            $data['url']
+            $data['url'],
+            $data['configurations']
         );
     }
 
@@ -38,5 +52,13 @@ class ParamsDTO
     public function getUrl()
     {
         return $this->url;
+    }
+
+    /**
+     * @return array
+     */
+    public function getConfigurations()
+    {
+        return $this->configurations;
     }
 }

@@ -3,27 +3,46 @@
 
 namespace AppBundle\Service;
 
-
 use AppBundle\Aggregate\IProductAggregate;
-use Doctrine\ORM\EntityManager;
-use Doctrine\ORM\EntityRepository;
+use AppBundle\Entity\Category;
+use AppBundle\Entity\Product;
+use AppBundle\Entity\ProductConfiguration;
+use AppBundle\Repository\CategoryRepository;
+use AppBundle\Repository\ProductConfigurationRepository;
+use AppBundle\Repository\ProductRepository;
 
 class StylusService
 {
     /**
-     * @var ParserContainer
+     * @var ParserManager
      */
-    private $container;
+    private $parserManager;
 
     /**
-     * @var EntityManager
+     * @var ProductRepository
      */
-    private $manager;
+    private $productRepository;
 
-    public function __construct(ParserContainer $container, EntityManager $manager)
-    {
-        $this->container = $container;
-        $this->manager = $manager;
+    /**
+     * @var ProductConfiguration
+     */
+    private $configurationRepository;
+
+    /**
+     * @var CategoryRepository
+     */
+    private $categoryRepository;
+
+    public function __construct(
+        ParserManager $parserManager,
+        ProductConfigurationRepository $configurationRepository,
+        ProductRepository $productRepository,
+        CategoryRepository $categoryRepository
+    ) {
+        $this->parserManager = $parserManager;
+        $this->productRepository = $productRepository;
+        $this->configurationRepository = $configurationRepository;
+        $this->categoryRepository = $categoryRepository;
     }
 
     /**
@@ -31,61 +50,88 @@ class StylusService
      */
     public function run($aliasPage)
     {
-        $parser = $this->container->getPageParser($aliasPage);
+        $parser = $this->parserManager->getParser($aliasPage);
+        $category = $this->getCategory(
+            $this->parserManager->getPageUrl()
+        );
 
-        $parser->each(function (IProductAggregate $aggregate) {
-            $entities = $this->saveTypes($aggregate);
-            $this->saveProduct($aggregate,$entities);
+        $parser->each(function (IProductAggregate $aggregate) use ($category) {
+
+            $this->saveProduct($aggregate, $category);
+
         });
     }
 
     /**
-     * @param IProductAggregate $aggregate
-     * @return array
+     * @param $pageUrl
+     * @return Category|null|object
      */
-    private function saveTypes(IProductAggregate $aggregate)
+    private function getCategory($pageUrl)
     {
-       return array_map(function ($entity) {
+        $category = $this->categoryRepository->findByUrl($pageUrl);
 
-            $repository = $this->manager->getRepository(get_class($entity));
-            $findEntity = $this->findTypeByName($entity, $repository);
+        if ($category === null) {
+            $category = new Category();
+            $category->setUrl($pageUrl);
+            $this->categoryRepository->save($category);
+        }
 
-            if (!empty($findEntity)) {
-                $entity = $findEntity;
-            } else {
-                $this->manager->persist($entity);
-                $this->manager->flush();
+        return $category;
+    }
+
+    /**
+     * @param IProductAggregate $aggregate
+     * @param $category
+     */
+    private function saveProduct(IProductAggregate $aggregate, Category $category)
+    {
+        $product = $aggregate->getProduct();
+        $product->setCategoryId($category->getId());
+        $product = $this->productRepository->save($product);
+
+        array_map(function (ProductConfiguration $config) use ($product) {
+
+            if($config->getValue() !== null) {
+
+                $config->setProduct($product);
+                $this->assignConfigId($config);
+
+                $this->configurationRepository->save($config);
             }
 
-            return $entity;
-
-        }, $aggregate->getTypes());
+        }, $aggregate->getConfiguration());
     }
 
     /**
-     * @param array $entities
-     * @param IProductAggregate $aggregate
+     * @param ProductConfiguration $config
      */
-    private function saveProduct(IProductAggregate $aggregate, array $entities)
+    private function assignConfigId(ProductConfiguration $config)
     {
-        $product = $aggregate->getProduct($entities);
-        $this->manager->persist($product);
-        $this->manager->flush();
+        $id = $this->configurationRepository->getExistingId($config);
+
+        if (empty($id)) {
+            $id = random_int(100, 9999);
+        }
+
+        $config->setConfigId($id);
     }
 
     /**
-     * @param object $entity
-     * @param EntityRepository $repository
-     * @return \Doctrine\ORM\QueryBuilder
+     * @param string $url
+     * @return Product[]
      */
-    private function findTypeByName($entity, EntityRepository $repository)
+    public function getProductListByUrl($url)
     {
-        return $repository->createQueryBuilder('type')
-            ->where('type.nameRu = :name')
-            ->setMaxResults(1)
-            ->setParameter('name', $entity->getNameRu())
-            ->getQuery()
-            ->getOneOrNullResult();
+        return $this->productRepository->findByCategoryUrl($url);
+    }
+
+    /**
+     * @param string $url
+     * @return array
+     */
+    public function getFilterGroupByCategoryUrl($url)
+    {
+        return $this->configurationRepository->findByCategoryUrl($url);
     }
 
 

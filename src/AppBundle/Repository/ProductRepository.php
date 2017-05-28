@@ -2,6 +2,12 @@
 
 namespace AppBundle\Repository;
 
+use AppBundle\Entity\Category;
+use AppBundle\Entity\Product;
+use AppBundle\Entity\ProductConfiguration;
+use Doctrine\ORM\Query;
+use Doctrine\ORM\Query\Expr\Join;
+
 /**
  * ProductRepository
  *
@@ -10,4 +16,32 @@ namespace AppBundle\Repository;
  */
 class ProductRepository extends \Doctrine\ORM\EntityRepository
 {
+    /**
+     * @param Product $product
+     * @return Product
+     */
+    public function save(Product $product)
+    {
+        $this->_em->persist($product);
+        $this->_em->flush();
+
+        return $product;
+    }
+
+    /**
+     * @param string $url
+     * @return Product[]
+     */
+    public function findByCategoryUrl($url)
+    {
+        return $this->createQueryBuilder("p")
+            ->select("p,conf")
+            ->leftJoin(Category::class, "cat", Join::WITH, "p.categoryId = cat.id")
+            ->leftJoin("p.configurations", "conf")
+            ->where("cat.url = :url")
+            ->setParameter(':url', $url)
+            ->getQuery()
+            ->getArrayResult();
+    }
+
 }

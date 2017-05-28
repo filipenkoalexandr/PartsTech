@@ -5,12 +5,12 @@ namespace AppBundle\Entity;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
- * DeviceType
+ * Category
  *
- * @ORM\Table(name="device_type")
- * @ORM\Entity(repositoryClass="AppBundle\Repository\DeviceTypeRepository")
+ * @ORM\Table(name="category")
+ * @ORM\Entity(repositoryClass="AppBundle\Repository\CategoryRepository")
  */
-class DeviceType
+class Category
 {
     /**
      * @var int
@@ -24,16 +24,16 @@ class DeviceType
     /**
      * @var string
      *
-     * @ORM\Column(name="name_ru", type="string", length=255)
+     * @ORM\Column(name="name_ru", type="string", nullable=true, length=255)
      */
     private $nameRu;
 
     /**
-     * @var int
+     * @var string
      *
-     * @ORM\Column(name="type", type="integer")
+     * @ORM\Column(name="url", type="string", length=255, unique=true)
      */
-    private $type;
+    private $url;
 
 
     /**
@@ -51,7 +51,7 @@ class DeviceType
      *
      * @param string $nameRu
      *
-     * @return DeviceType
+     * @return Category
      */
     public function setNameRu($nameRu)
     {
@@ -71,27 +71,27 @@ class DeviceType
     }
 
     /**
-     * Set type
+     * Set url
      *
-     * @param integer $type
+     * @param string $url
      *
-     * @return DeviceType
+     * @return Category
      */
-    public function setType($type)
+    public function setUrl($url)
     {
-        $this->type = $type;
+        $this->url = $url;
 
         return $this;
     }
 
     /**
-     * Get type
+     * Get url
      *
-     * @return int
+     * @return string
      */
-    public function getType()
+    public function getUrl()
     {
-        return $this->type;
+        return $this->url;
     }
 }
 

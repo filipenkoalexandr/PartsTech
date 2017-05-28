@@ -3,8 +3,7 @@
 
 namespace AppBundle\Service\Pages;
 
-use AppBundle\Aggregate\HeadSetAggregate;
-use AppBundle\Aggregate\IProductAggregate;
+use AppBundle\Aggregate\ProductAggregate;
 use Symfony\Component\DomCrawler\Crawler;
 
 class HeadSetPage extends AbstractPageParser
@@ -12,49 +11,69 @@ class HeadSetPage extends AbstractPageParser
 
     /**
      * @param Crawler $li
-     * @return IProductAggregate
+     * @return null|Crawler
      */
-    protected function assignment(Crawler $li)
+    protected function getConfigurationBlock(Crawler $li)
     {
-        $aggregate = new HeadSetAggregate();
+        $configurationBlock = $li->filter('div.block > div.layout > .right > .list');
 
-        $span = $li->filter('div.block > div.layout > .right > .list span');
-
-        $aggregate
-            ->setConstructionType(
-                $this->getTypeConstruction($span)
-            )
-            ->setDeviceType(
-                $this->getTypeDevice($span)
-            )
-            ->setClampType(
-                $this->getTypeClamp($span)
-            )
-            ->setProductPhoto(
-                $this->getPhoto($li)
-            )
-            ->setProductPrice(
-                $this->getPrice($li)
-            )
-            ->setProductTitle(
-                $this->getTitle($li)
-            );
-
-        return $aggregate;
+        return $configurationBlock->count() ? $configurationBlock : null;
     }
 
-    protected function getTypeConstruction(Crawler $node)
+
+    /**
+     * @param ProductAggregate $aggregate
+     * @param Crawler $node
+     */
+    protected function getConfigurations(ProductAggregate $aggregate, Crawler $node)
     {
-        return ($node->eq(0)->count()) ? $node->eq(0)->text() : null;
+        $htmlConfigurationsList = $node->html();
+
+        $items = explode('<br>', $htmlConfigurationsList);
+
+        foreach ($this->configurations as $url => $confName) {
+            foreach ($items as $item) {
+
+                if (stristr($item, $confName)) {
+
+                    preg_match("/<span ?.*>(.*)<\/span>/", $item, $val);
+                    $aggregate->setConfiguration($url, $confName, $val[1]);
+                }
+            }
+        }
     }
 
-    protected function getTypeDevice(Crawler $node)
+    /**
+     * @param Crawler $li
+     * @return string
+     */
+    protected function getTitle(Crawler $li)
     {
-        return ($node->eq(1)->count()) ? $node->eq(1)->text() : null;
+        return $li->filter('div.block > .item-title a')->text();
     }
 
-    protected function getTypeClamp(Crawler $node)
+    /**
+     * @param Crawler $li
+     * @return null|integer
+     */
+    protected function getPrice(Crawler $li)
     {
-        return ($node->eq(2)->count()) ? $node->eq(2)->text() : null;
+        $priceBlock = $li->filter('div.block > div.layout > div.left > span.price > span');
+
+        return $priceBlock->count() ? preg_replace("/[^\d]+/", "", $priceBlock->text()) : null;
+    }
+
+    /**
+     * @param Crawler $li
+     * @return null|string
+     */
+    protected function getImage(Crawler $li)
+    {
+        $src = $li->filter('a.frame img')->attr('src');
+        if (!$src) {
+            $src = $li->filter('a.frame img')->attr('data-original');
+        }
+
+        return $src;
     }
 }
