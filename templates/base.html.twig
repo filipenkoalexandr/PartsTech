@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8"/>
+    <title>{% block title %}Welcome!{% endblock %}</title>
+    {% block stylesheets %}{% endblock %}
+    <link href="/css/bootstrap.min.css" rel="stylesheet"/>
+    <link href="/css/main.css" rel="stylesheet"/>
+
+</head>
+<body>
+<nav class="navbar navbar-default">
+    <div class="container-fluid">
+        <div class="navbar-header">
+            <a class="navbar-brand" href="#">Stylus Parser</a>
+        </div>
+    </div>
+</nav>
+{% block body %}
+{% endblock %}
+
+{% block javascripts %}
+    <script src="/js/jquery-3.2.1.min.js"></script>
+    <script src="/js/underscore-min.js"></script>
+    <script src="/js/backbone.min.js"></script>
+    <script src="/js/collections/ProductCollection.js"></script>
+    <script src="/js/collections/FilterCollection.js"></script>
+    <script src="/js/views/PaginationView.js"></script>
+    <script src="/js/views/FilterView.js"></script>
+    <script src="/js/views/ProductListView.js"></script>
+{% endblock %}
+</body>
+</html>
